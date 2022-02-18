@@ -220,7 +220,8 @@ void FPixelReader::WritePixelsToBuffer(
     carla::Buffer &Buffer,
     uint32 Offset,
     FRHICommandListImmediate &InRHICmdList,
-    bool use16BitFormat
+    bool use16BitFormat,
+    bool useFlowFormat
     )
 {
   TRACE_CPUPROFILER_EVENT_SCOPE_STR(__FUNCTION__);

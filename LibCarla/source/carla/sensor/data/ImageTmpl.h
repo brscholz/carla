@@ -10,6 +10,7 @@
 #include "carla/sensor/data/Array.h"
 #include "carla/sensor/s11n/ImageSerializer.h"
 #include "carla/sensor/s11n/OpticalFlowImageSerializer.h"
+#include "carla/sensor/s11n/HDRImageSerializer.h"
 
 namespace carla {
 namespace sensor {
@@ -23,6 +24,7 @@ namespace data {
 
     using Serializer = s11n::ImageSerializer;
     using SerializerOpticalFlow = s11n::OpticalFlowImageSerializer;
+    using SerializerHDR = s11n::HDRImageSerializer;
 
     friend Serializer;
     friend SerializerOpticalFlow;

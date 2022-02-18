@@ -24,6 +24,14 @@ namespace data {
     return out;
   }
 
+  std::ostream &operator<<(std::ostream &out, const HDRColor &color) {
+    out << "Color(" << std::to_string(color.r)
+        << ',' << std::to_string(color.g)
+        << ',' << std::to_string(color.b)
+        << ',' << std::to_string(color.a) << ')';
+    return out;
+  }
+
   std::ostream &operator<<(std::ostream &out, const OpticalFlowPixel &color) {
     out << "Color(" << std::to_string(color.x)
         << ',' << std::to_string(color.y) << ')';
@@ -112,6 +120,18 @@ void export_blueprint() {
     .def_readwrite("a", &crpc::FloatColor::a)
     .def("__eq__", &crpc::FloatColor::operator==)
     .def("__ne__", &crpc::FloatColor::operator!=)
+  ;
+
+  class_<csd::HDRColor>("HDRColor")
+    .def(init<uint16_t, uint16_t, uint16_t, uint16_t>(
+        (arg("r")=0, arg("g")=0, arg("b")=0, arg("a")=65535u)))
+    .def_readwrite("r", &csd::HDRColor::r)
+    .def_readwrite("g", &csd::HDRColor::g)
+    .def_readwrite("b", &csd::HDRColor::b)
+    .def_readwrite("a", &csd::HDRColor::a)
+    .def("__eq__", &csd::HDRColor::operator==)
+    .def("__ne__", &csd::HDRColor::operator!=)
+    .def(self_ns::str(self_ns::self))
   ;
 
   class_<csd::OpticalFlowPixel>("OpticalFlowPixel")
