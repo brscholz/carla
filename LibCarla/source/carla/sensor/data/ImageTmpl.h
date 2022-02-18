@@ -28,6 +28,7 @@ namespace data {
 
     friend Serializer;
     friend SerializerOpticalFlow;
+    friend SerializerHDR;
 
     explicit ImageTmpl(RawData &&data)
       : Super(Serializer::header_offset, std::move(data)) {
