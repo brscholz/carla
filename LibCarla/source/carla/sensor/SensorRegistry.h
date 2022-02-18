@@ -18,6 +18,7 @@
 #include "carla/sensor/s11n/DVSEventArraySerializer.h"
 #include "carla/sensor/s11n/EpisodeStateSerializer.h"
 #include "carla/sensor/s11n/GnssSerializer.h"
+#include "carla/sensor/s11n/HDRImageSerializer.h"
 #include "carla/sensor/s11n/ImageSerializer.h"
 #include "carla/sensor/s11n/OpticalFlowImageSerializer.h"
 #include "carla/sensor/s11n/IMUSerializer.h"
@@ -32,6 +33,7 @@ class ACollisionSensor;
 class ADepthCamera;
 class ADVSCamera;
 class AGnssSensor;
+class AHDRCamera;
 class AInertialMeasurementUnit;
 class ALaneInvasionSensor;
 class AObstacleDetectionSensor;
@@ -60,6 +62,7 @@ namespace sensor {
     std::pair<ADepthCamera *, s11n::ImageSerializer>,
     std::pair<ADVSCamera *, s11n::DVSEventArraySerializer>,
     std::pair<AGnssSensor *, s11n::GnssSerializer>,
+    std::pair<AHDRCamera *, s11n::HDRImageSerializer>,
     std::pair<AInertialMeasurementUnit *, s11n::IMUSerializer>,
     std::pair<ALaneInvasionSensor *, s11n::NoopSerializer>,
     std::pair<AObstacleDetectionSensor *, s11n::ObstacleDetectionEventSerializer>,
@@ -86,6 +89,7 @@ namespace sensor {
 #include "Carla/Sensor/DepthCamera.h"
 #include "Carla/Sensor/DVSCamera.h"
 #include "Carla/Sensor/GnssSensor.h"
+#include "Carla/Sensor/HDRCamera.h"
 #include "Carla/Sensor/InertialMeasurementUnit.h"
 #include "Carla/Sensor/LaneInvasionSensor.h"
 #include "Carla/Sensor/ObstacleDetectionSensor.h"

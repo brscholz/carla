@@ -24,6 +24,6 @@ void AOpticalFlowCamera::PostPhysTick(UWorld *World, ELevelTick TickType, float 
   auto CVarForceOutputsVelocity = IConsoleManager::Get().FindConsoleVariable(TEXT("r.BasePassForceOutputsVelocity"));
   int32 OldValue = CVarForceOutputsVelocity->GetInt();
   CVarForceOutputsVelocity->Set(1);
-  FPixelReader::SendPixelsInRenderThread(*this, true);
+  FPixelReader::SendPixelsInRenderThread(*this, false, true);
   CVarForceOutputsVelocity->Set(OldValue);
 }

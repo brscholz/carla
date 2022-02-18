@@ -74,6 +74,46 @@ static void WritePixelsToBuffer_Vulkan(
 }
 
 // Temporal; this avoid allocating the array each time
+TArray<FFloat16Color> gFlowPixels;
+
+static void WriteFlowPixelsToBuffer_Vulkan(
+    const UTextureRenderTarget2D &RenderTarget,
+    carla::Buffer &Buffer,
+    uint32 Offset,
+    FRHICommandListImmediate &InRHICmdList)
+{
+  check(IsInRenderingThread());
+  gFlowPixels.Empty();
+  auto RenderResource =
+      static_cast<const FTextureRenderTarget2DResource *>(RenderTarget.Resource);
+  FTexture2DRHIRef Texture = RenderResource->GetRenderTargetTexture();
+  if (!Texture)
+  {
+    return;
+  }
+
+  FIntPoint Rect = RenderResource->GetSizeXY();
+
+  // NS: Extra copy here, don't know how to avoid it.
+  InRHICmdList.ReadSurfaceFloatData(
+      Texture,
+      FIntRect(0, 0, Rect.X, Rect.Y),
+      gFlowPixels,
+      CubeFace_PosX,0,0);
+
+  TArray<float> IntermediateBuffer;
+  IntermediateBuffer.Reserve(gFlowPixels.Num() * 2);
+  for (FFloat16Color& color : gFlowPixels) {
+    float x = (color.R.GetFloat() - 0.5f)*4.f;
+    float y = (color.G.GetFloat() - 0.5f)*4.f;
+    IntermediateBuffer.Add(x);
+    IntermediateBuffer.Add(y);
+  }
+  Buffer.copy_from(Offset, IntermediateBuffer);
+}
+
+
+// Temporal; this avoid allocating the array each time
 TArray<FFloat16Color> gFloatPixels;
 
 static void WriteFloatPixelsToBuffer_Vulkan(
@@ -82,6 +122,7 @@ static void WriteFloatPixelsToBuffer_Vulkan(
     uint32 Offset,
     FRHICommandListImmediate &InRHICmdList)
 {
+  TRACE_CPUPROFILER_EVENT_SCOPE_STR(__FUNCTION__);
   check(IsInRenderingThread());
   gFloatPixels.Empty();
   auto RenderResource =
@@ -99,17 +140,22 @@ static void WriteFloatPixelsToBuffer_Vulkan(
       Texture,
       FIntRect(0, 0, Rect.X, Rect.Y),
       gFloatPixels,
-      CubeFace_PosX,0,0);
+      FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX));
 
   TArray<float> IntermediateBuffer;
   IntermediateBuffer.Reserve(gFloatPixels.Num() * 2);
   for (FFloat16Color& color : gFloatPixels) {
-    float x = (color.R.GetFloat() - 0.5f)*4.f;
-    float y = (color.G.GetFloat() - 0.5f)*4.f;
-    IntermediateBuffer.Add(x);
-    IntermediateBuffer.Add(y);
+    uint16_t r = static_cast<uint16_t>(color.R*65535);
+    uint16_t g = static_cast<uint16_t>(color.G*65535);
+    uint16_t b = static_cast<uint16_t>(color.B*65535);
+    uint16_t a = static_cast<uint16_t>(color.A*65535);
+
+    IntermediateBuffer.Add(r);
+    IntermediateBuffer.Add(g);
+    IntermediateBuffer.Add(b);
+    IntermediateBuffer.Add(a);
   }
-  Buffer.copy_from(Offset, IntermediateBuffer);
+  Buffer.copy_from(Offset, IntermediateBuffer); 
 }
 
 // =============================================================================
@@ -186,6 +232,10 @@ void FPixelReader::WritePixelsToBuffer(
     {
       WriteFloatPixelsToBuffer_Vulkan(RenderTarget, Buffer, Offset, InRHICmdList);
     }
+    else if (useFlowFormat)
+    {
+      WriteFlowPixelsToBuffer_Vulkan(RenderTarget, Buffer, Offset, InRHICmdList);
+    }    
     else
     {
       WritePixelsToBuffer_Vulkan(RenderTarget, Buffer, Offset, InRHICmdList);

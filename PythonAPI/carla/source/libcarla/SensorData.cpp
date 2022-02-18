@@ -44,6 +44,14 @@ namespace data {
     return out;
   }
 
+  std::ostream &operator<<(std::ostream &out, const HDRImage &image) {
+    out << "HDRImage(frame=" << std::to_string(image.GetFrame())
+        << ", timestamp=" << std::to_string(image.GetTimestamp())
+        << ", size=" << std::to_string(image.GetWidth()) << 'x' << std::to_string(image.GetHeight())
+        << ')';
+    return out;
+  }
+
   std::ostream &operator<<(std::ostream &out, const OpticalFlowImage &image) {
     out << "OpticalFlowImage(frame=" << std::to_string(image.GetFrame())
         << ", timestamp=" << std::to_string(image.GetTimestamp())
@@ -209,6 +217,63 @@ static void ConvertImage(T &self, EColorConverter cc) {
     default:
       throw std::invalid_argument("invalid color converter!");
   }
+}
+
+
+// image object resturned from optical flow to color conversion
+class EightBitImage : public std::vector<uint8_t> {
+  public:
+  unsigned int Width = 0;
+  unsigned int Height = 0;
+  float FOV = 0;
+};
+
+// method to convert optical flow images to rgb
+static EightBitImage ToEightBit (
+    carla::sensor::data::HDRImage& image) {
+  namespace bp = boost::python;
+  namespace csd = carla::sensor::data;
+  EightBitImage result;
+  result.Width = image.GetWidth();
+  result.Height = image.GetHeight();
+  result.FOV = image.GetFOVAngle();
+  result.resize(image.GetHeight()*image.GetWidth()* 4);
+
+  // lambda for computing batches of pixels
+  auto command = [&] (size_t min_index, size_t max_index) {
+    for (size_t index = min_index; index < max_index; index++) {
+      const csd::HDRColor& pixel = image[index];
+      uint16_t r = pixel.r;
+      uint16_t g = pixel.g;
+      uint16_t b = pixel.b;
+      uint16_t a = pixel.a;
+
+      uint8_t R = static_cast<uint8_t>(r/65535u*255u);
+      uint8_t G = static_cast<uint8_t>(g/65535u*255u);
+      uint8_t B = static_cast<uint8_t>(b/65535u*255u);
+
+      result[4*index] = B;
+      result[4*index + 1] = G;
+      result[4*index + 2] = R;
+      result[4*index + 3] = 0;
+    }
+  };
+  size_t num_threads = std::max(8u, std::thread::hardware_concurrency());
+  size_t batch_size = image.size() / num_threads;
+  std::vector<std::thread*> t(num_threads+1);
+
+  for(size_t n = 0; n < num_threads; n++) {
+    t[n] = new std::thread(command, n * batch_size, (n+1) * batch_size);
+  }
+  t[num_threads] = new std::thread(command, num_threads * batch_size, image.size());
+
+  for(size_t n = 0; n <= num_threads; n++) {
+    if(t[n]->joinable()){
+      t[n]->join();
+    }
+    delete t[n];
+  }
+  return result;
 }
 
 // image object resturned from optical flow to color conversion
@@ -400,6 +465,23 @@ void export_sensor_data() {
       return self.at(pos);
     })
     .def("__setitem__", +[](csd::Image &self, size_t pos, csd::Color color) {
+      self.at(pos) = color;
+    })
+    .def(self_ns::str(self_ns::self))
+  ;
+
+  class_<csd::HDRImage, bases<cs::SensorData>, boost::noncopyable, boost::shared_ptr<csd::HDRImage>>("HDRImage", no_init)
+    .add_property("width", &csd::HDRImage::GetWidth)
+    .add_property("height", &csd::HDRImage::GetHeight)
+    .add_property("fov", &csd::HDRImage::GetFOVAngle)
+    .add_property("raw_data", &GetRawDataAsBuffer<csd::HDRImage>)
+    .def("get_eight_bit_image", &ToEightBit)
+    .def("__len__", &csd::HDRImage::size)
+    .def("__iter__", iterator<csd::HDRImage>())
+    .def("__getitem__", +[](const csd::HDRImage &self, size_t pos) -> csd::HDRColor {
+      return self.at(pos);
+    })
+    .def("__setitem__", +[](csd::HDRImage &self, size_t pos, csd::HDRColor color) {
       self.at(pos) = color;
     })
     .def(self_ns::str(self_ns::self))

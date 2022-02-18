@@ -17,6 +17,9 @@ namespace data {
   using Image = ImageTmpl<Color>;
 
   /// An image of 64-bit BGRA colors (16-bit channels)
+  using HDRImage = ImageTmpl<HDRColor>;  
+
+  /// An image of 64-bit BGRA colors (16-bit channels)
   using OpticalFlowImage = ImageTmpl<OpticalFlowPixel>;
 
 } // namespace data

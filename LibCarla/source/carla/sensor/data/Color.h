@@ -52,6 +52,43 @@ namespace data {
   static_assert(sizeof(Color) == sizeof(uint32_t), "Invalid color size!");
 
 #pragma pack(push, 1)
+  /// A 64-bit BGRA color.
+  struct HDRColor {
+    HDRColor() = default;
+    HDRColor(const HDRColor &) = default;
+
+    HDRColor(uint16_t r, uint16_t g, uint16_t b, uint16_t a = 65535u)
+      : r(r), g(g), b(b), a(a) {}
+
+    HDRColor &operator=(const HDRColor &) = default;
+
+    bool operator==(const HDRColor &rhs) const  {
+      return (r == rhs.r) && (g == rhs.g) && (b == rhs.b);
+    }
+
+    bool operator!=(const HDRColor &rhs) const  {
+      return !(*this == rhs);
+    }
+
+    operator rpc::Color() const {
+      return {static_cast<uint8_t>(r/65535u*255u), static_cast<uint8_t>(g/65535u*255u), static_cast<uint8_t>(b/65535u*255u)};
+    }
+    operator rpc::FloatColor() const {
+      return {r/65535.f, g/65535.f, b/65535.f, a/65535.f};
+    }
+
+    uint16_t r = 0u;
+    uint16_t g = 0u;
+    uint16_t b = 0u;
+    uint16_t a = 65535u;    
+    MSGPACK_DEFINE_ARRAY(r, g, b, a);
+  };
+#pragma pack(pop)
+
+  static_assert(sizeof(HDRColor) == sizeof(uint64_t), "Invalid color size!");
+
+
+#pragma pack(push, 1)
   /// Optical flow pixel format. 2 channel float data.
   struct OpticalFlowPixel {
     OpticalFlowPixel() = default;
