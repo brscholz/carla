@@ -14,7 +14,7 @@ namespace carla {
       SharedPtr<SensorData> HDRImageSerializer::Deserialize(RawData &&data) {
         auto image = SharedPtr<data::HDRImage>(new data::HDRImage{std::move(data)});
         for (auto &pixel : *image) {
-          pixel.a = 65535u;
+          pixel.a = 1.0;
         }        
         return image;
       }

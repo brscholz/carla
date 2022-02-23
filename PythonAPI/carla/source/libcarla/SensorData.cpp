@@ -243,14 +243,14 @@ static EightBitImage ToEightBit (
   auto command = [&] (size_t min_index, size_t max_index) {
     for (size_t index = min_index; index < max_index; index++) {
       const csd::HDRColor& pixel = image[index];
-      uint16_t r = pixel.r;
-      uint16_t g = pixel.g;
-      uint16_t b = pixel.b;
-      uint16_t a = pixel.a;
+      float r = pixel.r;
+      float g = pixel.g;
+      float b = pixel.b;
+      float a = pixel.a;
 
-      uint8_t R = static_cast<uint8_t>(r/65535u*255u);
-      uint8_t G = static_cast<uint8_t>(g/65535u*255u);
-      uint8_t B = static_cast<uint8_t>(b/65535u*255u);
+      uint8_t R = static_cast<uint8_t>(r*255.0);
+      uint8_t G = static_cast<uint8_t>(g*255.0);
+      uint8_t B = static_cast<uint8_t>(b*255.0);
 
       result[4*index] = B;
       result[4*index + 1] = G;

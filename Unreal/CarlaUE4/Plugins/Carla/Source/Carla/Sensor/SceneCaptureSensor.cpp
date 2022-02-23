@@ -483,7 +483,7 @@ void ASceneCaptureSensor::BeginPlay()
   // Call derived classes to set up their things.
   SetUpSceneCaptureComponent(*CaptureComponent2D);
 
-  CaptureComponent2D->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+  CaptureComponent2D->CaptureSource = ESceneCaptureSource::SCS_FinalColorHDR;
 
   CaptureComponent2D->UpdateContent();
   CaptureComponent2D->Activate();

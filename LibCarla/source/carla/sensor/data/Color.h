@@ -57,7 +57,7 @@ namespace data {
     HDRColor() = default;
     HDRColor(const HDRColor &) = default;
 
-    HDRColor(uint16_t r, uint16_t g, uint16_t b, uint16_t a = 65535u)
+    HDRColor(float r, float g, float b, float a = 1.0)
       : r(r), g(g), b(b), a(a) {}
 
     HDRColor &operator=(const HDRColor &) = default;
@@ -71,21 +71,21 @@ namespace data {
     }
 
     operator rpc::Color() const {
-      return {static_cast<uint8_t>(r/65535u*255u), static_cast<uint8_t>(g/65535u*255u), static_cast<uint8_t>(b/65535u*255u)};
+      return {static_cast<uint8_t>(r*255.0), static_cast<uint8_t>(g*255.0), static_cast<uint8_t>(b*255.0};
     }
     operator rpc::FloatColor() const {
-      return {r/65535.f, g/65535.f, b/65535.f, a/65535.f};
+      return {r, g, b, a};
     }
 
-    uint16_t r = 0u;
-    uint16_t g = 0u;
-    uint16_t b = 0u;
-    uint16_t a = 65535u;    
+    float r = 0.0;
+    float g = 0.0;
+    float b = 0.0;
+    float a = 1.0;    
     MSGPACK_DEFINE_ARRAY(r, g, b, a);
   };
 #pragma pack(pop)
 
-  static_assert(sizeof(HDRColor) == sizeof(uint64_t), "Invalid color size!");
+  static_assert(sizeof(HDRColor) == 4*sizeof(float), "Invalid color size!");
 
 
 #pragma pack(push, 1)

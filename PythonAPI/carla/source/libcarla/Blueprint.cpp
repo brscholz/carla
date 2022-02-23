@@ -123,8 +123,8 @@ void export_blueprint() {
   ;
 
   class_<csd::HDRColor>("HDRColor")
-    .def(init<uint16_t, uint16_t, uint16_t, uint16_t>(
-        (arg("r")=0, arg("g")=0, arg("b")=0, arg("a")=65535u)))
+    .def(init<float, float, float, float>(
+        (arg("r")=0, arg("g")=0, arg("b")=0, arg("a")=1.0)))
     .def_readwrite("r", &csd::HDRColor::r)
     .def_readwrite("g", &csd::HDRColor::g)
     .def_readwrite("b", &csd::HDRColor::b)

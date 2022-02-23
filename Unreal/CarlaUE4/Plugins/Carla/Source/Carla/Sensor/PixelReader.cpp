@@ -141,21 +141,7 @@ static void WriteFloatPixelsToBuffer_Vulkan(
       FIntRect(0, 0, Rect.X, Rect.Y),
       gFloatPixels,
       FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX));
-
-  TArray<uint16_t> IntermediateBuffer;
-  IntermediateBuffer.Reserve(gFloatPixels.Num() * 4);
-  for (FFloat16Color& color : gFloatPixels) {
-    uint16_t r = static_cast<uint16_t>(color.R*65535);
-    uint16_t g = static_cast<uint16_t>(color.G*65535);
-    uint16_t b = static_cast<uint16_t>(color.B*65535);
-    uint16_t a = static_cast<uint16_t>(color.A*65535);
-
-    IntermediateBuffer.Add(b);
-    IntermediateBuffer.Add(g);
-    IntermediateBuffer.Add(r);
-    IntermediateBuffer.Add(a);
-  }
-  Buffer.copy_from(Offset, IntermediateBuffer); 
+  Buffer.copy_from(Offset, gFloatPixels); 
 }
 
 // =============================================================================
