@@ -39,6 +39,23 @@ namespace image {
           sizeof(sd::Color) * image.GetWidth()); // row length in bytes.
     }
 
+    template <typename DstPixelT, typename ImageT>
+    static auto MakeViewFromSensorHDRImage(ImageT &image) {
+      using namespace boost::gil;
+      namespace sd = carla::sensor::data;
+      static_assert(
+          std::is_same<typename ImageT::pixel_type, sd::HDRColor>::value,
+          "Invalid pixel type");
+      static_assert(
+          sizeof(sd::HDRColor) == sizeof(DstPixelT),
+          "Invalid pixel size");
+      return interleaved_view(
+          image.GetWidth(),
+          image.GetHeight(),
+          reinterpret_cast<DstPixelT*>(image.data()),
+          sizeof(sd::HDRColor) * image.GetWidth()); // row length in bytes.
+    }
+
   public:
 
     template <typename ImageT>
@@ -52,6 +69,19 @@ namespace image {
 
     static auto MakeView(const sensor::data::ImageTmpl<sensor::data::Color> &image) {
       return MakeViewFromSensorImage<boost::gil::bgra8c_pixel_t>(image);
+    }
+
+    template <typename ImageT>
+    static auto MakeHDRView(ImageT &image) {
+      return boost::gil::view(image);
+    }
+
+    static auto MakeHDRView(sensor::data::ImageTmpl<sensor::data::HDRColor> &image) {
+      return MakeViewFromSensorHDRImage<boost::gil::bgr32_pixel_t>(image);
+    }
+
+    static auto MakeHDRView(const sensor::data::ImageTmpl<sensor::data::HDRColor> &image) {
+      return MakeViewFromSensorHDRImage<boost::gil::bgr32c_pixel_t>(image);
     }
 
     template <typename SrcViewT, typename DstPixelT, typename CC>

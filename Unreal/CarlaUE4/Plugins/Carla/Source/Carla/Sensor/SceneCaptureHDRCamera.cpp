@@ -1,9 +1,15 @@
+// Copyright (c) 2017 Computer Vision Center (CVC) at the Universitat Autonoma
+// de Barcelona (UAB).
+//
+// This work is licensed under the terms of the MIT license.
+// For a copy, see <https://opensource.org/licenses/MIT>.
+
 #include "Carla.h"
-#include "Carla/Sensor/HDRCamera.h"
+#include "Carla/Sensor/SceneCaptureHDRCamera.h"
 
-#include "Carla/Sensor/PixelReader.h"
+#include "Runtime/RenderCore/Public/RenderingThread.h"
 
-FActorDefinition AHDRCamera::GetSensorDefinition()
+FActorDefinition ASceneCaptureHDRCamera::GetSensorDefinition()
 {
   constexpr bool bEnableModifyingPostProcessEffects = true;
   return UActorBlueprintFunctionLibrary::MakeCameraDefinition(
@@ -11,7 +17,7 @@ FActorDefinition AHDRCamera::GetSensorDefinition()
       bEnableModifyingPostProcessEffects);
 }
 
-AHDRCamera::AHDRCamera(const FObjectInitializer &ObjectInitializer)
+ASceneCaptureHDRCamera::ASceneCaptureHDRCamera(const FObjectInitializer &ObjectInitializer)
   : Super(ObjectInitializer)
 {
   Enable16BitFormat(true);
@@ -20,7 +26,7 @@ AHDRCamera::AHDRCamera(const FObjectInitializer &ObjectInitializer)
   CaptureRenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA16f;
 }
 
-void AHDRCamera::PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaSeconds)
+void ASceneCaptureHDRCamera::PostPhysTick(UWorld *World, ELevelTick TickType, float DeltaSeconds)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE(AHDRCamera::PostPhysTick);
   FPixelReader::SendPixelsInRenderThread(*this, true, false);

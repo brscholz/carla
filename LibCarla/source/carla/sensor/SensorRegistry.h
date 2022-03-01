@@ -33,7 +33,6 @@ class ACollisionSensor;
 class ADepthCamera;
 class ADVSCamera;
 class AGnssSensor;
-class AHDRCamera;
 class AInertialMeasurementUnit;
 class ALaneInvasionSensor;
 class AObstacleDetectionSensor;
@@ -42,6 +41,7 @@ class ARadar;
 class ARayCastSemanticLidar;
 class ARayCastLidar;
 class ASceneCaptureCamera;
+class ASceneCaptureHDRCamera;
 class ASemanticSegmentationCamera;
 class AInstanceSegmentationCamera;
 class ARssSensor;
@@ -62,7 +62,6 @@ namespace sensor {
     std::pair<ADepthCamera *, s11n::ImageSerializer>,
     std::pair<ADVSCamera *, s11n::DVSEventArraySerializer>,
     std::pair<AGnssSensor *, s11n::GnssSerializer>,
-    std::pair<AHDRCamera *, s11n::HDRImageSerializer>,
     std::pair<AInertialMeasurementUnit *, s11n::IMUSerializer>,
     std::pair<ALaneInvasionSensor *, s11n::NoopSerializer>,
     std::pair<AObstacleDetectionSensor *, s11n::ObstacleDetectionEventSerializer>,
@@ -72,6 +71,7 @@ namespace sensor {
     std::pair<ARayCastLidar *, s11n::LidarSerializer>,
     std::pair<ARssSensor *, s11n::NoopSerializer>,
     std::pair<ASceneCaptureCamera *, s11n::ImageSerializer>,
+    std::pair<ASceneCaptureHDRCamera *, s11n::HDRImageSerializer>,
     std::pair<ASemanticSegmentationCamera *, s11n::ImageSerializer>,
     std::pair<AInstanceSegmentationCamera *, s11n::ImageSerializer>,
     std::pair<FWorldObserver *, s11n::EpisodeStateSerializer>
@@ -89,7 +89,6 @@ namespace sensor {
 #include "Carla/Sensor/DepthCamera.h"
 #include "Carla/Sensor/DVSCamera.h"
 #include "Carla/Sensor/GnssSensor.h"
-#include "Carla/Sensor/HDRCamera.h"
 #include "Carla/Sensor/InertialMeasurementUnit.h"
 #include "Carla/Sensor/LaneInvasionSensor.h"
 #include "Carla/Sensor/ObstacleDetectionSensor.h"
@@ -99,6 +98,7 @@ namespace sensor {
 #include "Carla/Sensor/RayCastSemanticLidar.h"
 #include "Carla/Sensor/RssSensor.h"
 #include "Carla/Sensor/SceneCaptureCamera.h"
+#include "Carla/Sensor/SceneCaptureHDRCamera.h"
 #include "Carla/Sensor/SemanticSegmentationCamera.h"
 #include "Carla/Sensor/InstanceSegmentationCamera.h"
 #include "Carla/Sensor/WorldObserver.h"

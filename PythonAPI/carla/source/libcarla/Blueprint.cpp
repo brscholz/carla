@@ -25,10 +25,9 @@ namespace data {
   }
 
   std::ostream &operator<<(std::ostream &out, const HDRColor &color) {
-    out << "Color(" << std::to_string(color.r)
+    out << "HDRColor(" << std::to_string(color.r)
         << ',' << std::to_string(color.g)
-        << ',' << std::to_string(color.b)
-        << ',' << std::to_string(color.a) << ')';
+        << ',' << std::to_string(color.b) << ')';
     return out;
   }
 
@@ -123,12 +122,11 @@ void export_blueprint() {
   ;
 
   class_<csd::HDRColor>("HDRColor")
-    .def(init<float, float, float, float>(
-        (arg("r")=0, arg("g")=0, arg("b")=0, arg("a")=1.0)))
+    .def(init<float, float, float>(
+        (arg("r")=0.f, arg("g")=0.f, arg("b")=0.f)))
     .def_readwrite("r", &csd::HDRColor::r)
     .def_readwrite("g", &csd::HDRColor::g)
     .def_readwrite("b", &csd::HDRColor::b)
-    .def_readwrite("a", &csd::HDRColor::a)
     .def("__eq__", &csd::HDRColor::operator==)
     .def("__ne__", &csd::HDRColor::operator!=)
     .def(self_ns::str(self_ns::self))

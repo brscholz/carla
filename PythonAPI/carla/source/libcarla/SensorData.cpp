@@ -219,7 +219,6 @@ static void ConvertImage(T &self, EColorConverter cc) {
   }
 }
 
-
 // image object resturned from optical flow to color conversion
 class EightBitImage : public std::vector<uint8_t> {
   public:
@@ -246,16 +245,26 @@ static EightBitImage ToEightBit (
       float r = pixel.r;
       float g = pixel.g;
       float b = pixel.b;
-      float a = pixel.a;
+	  
+	  // We need to do the ACES to sRGB here first! Or is the output from Unreal already sRGB?
+	  // Possible way see: https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/ACES.hlsl
+	  // First we just clip the values here...
+	  // When we use PostProcessing with tonemap parameters, Unreal may have already done the tonemapping...
+	  r = std::max(std::min(r,1.0f),0.0f);
+	  g = std::max(std::min(g,1.0f),0.0f);
+	  b = std::max(std::min(b,1.0f),0.0f);
+	  
+	  // Do the gamma correction after
+	  float gamma = 2.2f;
 
-      uint8_t R = static_cast<uint8_t>(r*255.0);
-      uint8_t G = static_cast<uint8_t>(g*255.0);
-      uint8_t B = static_cast<uint8_t>(b*255.0);
+      uint8_t R = static_cast<uint8_t>(std::pow(r,1/gamma)*255.f+0.5f);
+      uint8_t G = static_cast<uint8_t>(std::pow(g,1/gamma)*255.f+0.5f);
+      uint8_t B = static_cast<uint8_t>(std::pow(b,1/gamma)*255.f+0.5f);
 
       result[4*index] = B;
       result[4*index + 1] = G;
       result[4*index + 2] = R;
-      result[4*index + 3] = 0;
+      result[4*index + 3] = 255u;
     }
   };
   size_t num_threads = std::max(8u, std::thread::hardware_concurrency());
@@ -428,6 +437,13 @@ void export_sensor_data() {
   namespace cs = carla::sensor;
   namespace csd = carla::sensor::data;
   namespace css = carla::sensor::s11n;
+
+  class_<EightBitImage>("EightBitImage", no_init)
+      .def(vector_indexing_suite<std::vector<uint8_t>>())
+      .add_property("width", &EightBitImage::Width)
+      .add_property("height", &EightBitImage::Height)
+      .add_property("fov", &EightBitImage::FOV)
+      .add_property("raw_data", &GetRawDataAsBuffer<EightBitImage>);
 
   // Fake image returned from optical flow to color conversion
   // fakes the regular image object. Only used for visual purposes

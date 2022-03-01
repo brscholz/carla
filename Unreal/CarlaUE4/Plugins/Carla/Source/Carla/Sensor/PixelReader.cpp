@@ -67,6 +67,13 @@ static void WritePixelsToBuffer_Vulkan(
         gPixels,
         FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX));
   }
+  //int counter = 0;
+  //for (FColor& color : gPixels) {
+  //  if (counter == 1) {
+  //      GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("SDR: R: %i - G: %i - B: %i - A: %i "), color.R, color.G, color.B, color.A));
+  //  }
+  //  ++counter;
+  //}
   {
     TRACE_CPUPROFILER_EVENT_SCOPE_STR("Buffer Copy");
     Buffer.copy_from(Offset, gPixels);
@@ -140,8 +147,25 @@ static void WriteFloatPixelsToBuffer_Vulkan(
       Texture,
       FIntRect(0, 0, Rect.X, Rect.Y),
       gFloatPixels,
-      FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX));
-  Buffer.copy_from(Offset, gFloatPixels); 
+	  CubeFace_PosX, 0, 0);
+	  //FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX));
+
+  TArray<float> IntermediateBuffer;
+  IntermediateBuffer.Reserve(gFloatPixels.Num() * 3);
+  //int counter = 0;
+  for (FFloat16Color& color : gFloatPixels) {
+
+    IntermediateBuffer.Add(color.B.GetFloat());
+    IntermediateBuffer.Add(color.G.GetFloat());
+    IntermediateBuffer.Add(color.R.GetFloat());
+	
+	//if (counter == 1) {
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("HDR: R: %f - G: %f - B: %f - A: %f"), color.R.GetFloat(), color.G.GetFloat(), color.B.GetFloat(), color.A.GetFloat()));
+  	//}
+	//++counter;
+  }
+  Buffer.copy_from(Offset, IntermediateBuffer);
+  //Buffer.copy_from(Offset, gFloatPixels);
 }
 
 // =============================================================================
@@ -239,7 +263,7 @@ void FPixelReader::WritePixelsToBuffer(
   FRHITexture2D *Texture = RenderTargetResource->GetRenderTargetTexture();
   checkf(Texture != nullptr, TEXT("FPixelReader: UTextureRenderTarget2D missing render target texture"));
 
-  const uint32 BytesPerPixel = use16BitFormat ? 8u : 4u; // PF_R8G8B8A8 or PF_FloatRGBA
+  const uint32 BytesPerPixel = (use16BitFormat || useFlowFormat) ? 8u : 4u; // PF_R8G8B8A8 or PF_FloatRGBA
   const uint32 Width = Texture->GetSizeX();
   const uint32 Height = Texture->GetSizeY();
   const uint32 ExpectedStride = Width * BytesPerPixel;

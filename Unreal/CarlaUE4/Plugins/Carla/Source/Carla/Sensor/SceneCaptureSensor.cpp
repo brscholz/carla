@@ -483,6 +483,10 @@ void ASceneCaptureSensor::BeginPlay()
   // Call derived classes to set up their things.
   SetUpSceneCaptureComponent(*CaptureComponent2D);
 
+  //CaptureComponent2D->CaptureSource = bEnable16BitFormat ? ESceneCaptureSource::SCS_FinalColorHDR : ESceneCaptureSource::SCS_FinalColorLDR;
+  // We always want to use HDR in the calculation and do tonemapping/clipping later
+  // The normal RGB-camera outputs more realistic light values this way...
+  // Unfortunately the 8bit image captured with HDR-"on" is darker in 0.9.13 than in 0.9.11
   CaptureComponent2D->CaptureSource = ESceneCaptureSource::SCS_FinalColorHDR;
 
   CaptureComponent2D->UpdateContent();

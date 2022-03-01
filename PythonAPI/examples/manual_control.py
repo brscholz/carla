@@ -1068,6 +1068,7 @@ class CameraManager(object):
                 'lens_circle_falloff': '3.0',
                 'chromatic_aberration_intensity': '0.5',
                 'chromatic_aberration_offset': '0'}],
+            ['sensor.camera.hdr', cc.Raw, 'HDR Camera RGB', {}],
             ['sensor.camera.optical_flow', cc.Raw, 'Optical Flow', {}],
         ]
         world = self._parent.get_world()
@@ -1155,6 +1156,18 @@ class CameraManager(object):
             # Blue is positive, red is negative
             dvs_img[dvs_events[:]['y'], dvs_events[:]['x'], dvs_events[:]['pol'] * 2] = 255
             self.surface = pygame.surfarray.make_surface(dvs_img.swapaxes(0, 1))
+        elif self.sensors[self.index][0].startswith('sensor.camera.hdr'):
+            #hdrimage = np.frombuffer(image.raw_data, dtype=np.dtype([
+            #    ('b', np.single), ('g', np.single), ('r', np.single)]))
+            image = image.get_eight_bit_image()
+            #ldrimage = np.frombuffer(image.raw_data, dtype=np.dtype([
+            #    ('b', np.uint8), ('g', np.uint8), ('r', np.uint8), ('a', np.uint8)]))
+            #self.hud.notification("Color of First-pixel in float-image is - R: %f - G: %f - B: %f - In uint08-image - R: %d - G: %d - B: %d - A: %d -" % (hdrimage[1]['r'],hdrimage[1]['g'],hdrimage[1]['b'],ldrimage[1]['r'],ldrimage[1]['g'],ldrimage[1]['b'],ldrimage[1]['a']))
+            array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
+            array = np.reshape(array, (image.height, image.width, 4))
+            array = array[:, :, :3]
+            array = array[:, :, ::-1]
+            self.surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         elif self.sensors[self.index][0].startswith('sensor.camera.optical_flow'):
             image = image.get_color_coded_flow()
             array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
@@ -1165,6 +1178,9 @@ class CameraManager(object):
         else:
             image.convert(self.sensors[self.index][1])
             array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
+            #ldrimage = np.frombuffer(image.raw_data, dtype=np.dtype([
+            #    ('b', np.uint8), ('g', np.uint8), ('r', np.uint8), ('a', np.uint8)]))
+            #self.hud.notification("Color of First-pixel in uint8-image is - R: %d - G: %d - B: %d - A: %d" % (ldrimage[1]['r'],ldrimage[1]['g'],ldrimage[1]['b'],ldrimage[1]['a']))
             array = np.reshape(array, (image.height, image.width, 4))
             array = array[:, :, :3]
             array = array[:, :, ::-1]

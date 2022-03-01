@@ -51,14 +51,15 @@ namespace data {
 
   static_assert(sizeof(Color) == sizeof(uint32_t), "Invalid color size!");
 
+
 #pragma pack(push, 1)
-  /// A 64-bit BGRA color.
+  /// A 96-bit BGR color.
   struct HDRColor {
     HDRColor() = default;
     HDRColor(const HDRColor &) = default;
 
-    HDRColor(float r, float g, float b, float a = 1.0)
-      : r(r), g(g), b(b), a(a) {}
+    HDRColor(float r, float g, float b)
+      : b(b), g(g), r(r) {}
 
     HDRColor &operator=(const HDRColor &) = default;
 
@@ -70,22 +71,25 @@ namespace data {
       return !(*this == rhs);
     }
 
+    operator rpc::HDRColor() const {
+      return {r, g, b};
+    }
     operator rpc::Color() const {
-      return {static_cast<uint8_t>(r*255.0), static_cast<uint8_t>(g*255.0), static_cast<uint8_t>(b*255.0};
+      return {static_cast<uint8_t>(r*255.f), static_cast<uint8_t>(g*255.f), static_cast<uint8_t>(b*255.f)};
     }
     operator rpc::FloatColor() const {
-      return {r, g, b, a};
+      return {r, g, b, 1.f};
     }
 
-    float r = 0.0;
-    float g = 0.0;
-    float b = 0.0;
-    float a = 1.0;    
-    MSGPACK_DEFINE_ARRAY(r, g, b, a);
+    float b = 0.f;
+    float g = 0.f;
+    float r = 0.f;
+    //float a = 0.f; // or 1.f?
+    MSGPACK_DEFINE_ARRAY(r, g, b);
   };
 #pragma pack(pop)
 
-  static_assert(sizeof(HDRColor) == 4*sizeof(float), "Invalid color size!");
+  static_assert(sizeof(HDRColor) == 3*sizeof(float), "Invalid color size!");
 
 
 #pragma pack(push, 1)

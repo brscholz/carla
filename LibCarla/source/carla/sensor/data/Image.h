@@ -16,7 +16,7 @@ namespace data {
   /// An image of 32-bit BGRA colors (8-bit channels)
   using Image = ImageTmpl<Color>;
 
-  /// An image of 64-bit BGRA colors (16-bit channels)
+  /// An image of 96-bit BGRA colors (32-bit channels)
   using HDRImage = ImageTmpl<HDRColor>;  
 
   /// An image of 64-bit BGRA colors (16-bit channels)
